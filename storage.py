@@ -71,29 +71,29 @@ def empty(name):
 @click.option('-b', '--bucket', help='bucket to upload to', required=True)
 @click.option('-s', '--source', help='path of local file you want to upload', required=True)
 @click.option('-d', '--destination',  help='destination file path on supabase storage', required=True)
-def upload(bucket, filename, destination):
+def upload(bucket, source, destination):
     storage = init_supa_storage()
     try:
-        with open(filename, 'r+') as f:
-            res = storage.from_(bucket).upload(destination, f)
+        with open(source, 'rb+') as f:
+            res = storage.from_(bucket).upload(destination, os.path.abspath(source))
     except Exception as e:
         raise("error occurred")
 
 @files.command()
 @click.option('-b', '--bucket-name', help='name of bucket', required=True)
-@click.option('-d', '--destination',  help='filepath to download', required=True)
-@click.option('-o', '--output', help='output path to save the file to', required=True)
-def download(bucket_name, destination):
+@click.option('-s', '--source',  help='filepath on supastorage', required=True)
+@click.option('-d', '--destination', help='output path to save the file to', required=True)
+def download(bucket_name, source, destination):
     storage = init_supa_storage()
     try:
-        with open(output, 'w+') as f:
-            res = storage.from_(bucket_name).download(destination)
+        with open(destination, 'wb+') as f:
+            res = storage.from_(bucket_name).download(source)
             f.write(res)
     except Exception as e:
         raise("Download failed")
 
 @files.command()
-@click.option('-s', 'source', help='path of local file you want to upload', required=True)
+@click.option('-s', '--source', help='path of local file you want to upload', required=True)
 @click.option('-d', '--destination',  help='destination file path on supabase storage', required=True)
 def move(filename, destination):
     raise NotImplementedError("todo")

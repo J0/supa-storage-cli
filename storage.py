@@ -48,13 +48,22 @@ def delete(name):
 
 @bucket.command()
 @click.option('-n', '--name', help='name of bucket', required=True)
-def list(name):
+def get(name):
     try:
         storage_client = init_supa_storage()
         res = storage_client.get_bucket(name)
         click.echo(f"{res}")
     except:
-        raise("Failed to delete bucket")
+        raise("Failed to get bucket")
+
+@bucket.command()
+def list():
+    try:
+        storage_client = init_supa_storage()
+        res = storage_client.list_buckets()
+        click.echo(f"{res}")
+    except:
+        raise("Failed to list buckets")
 
 @bucket.command()
 @click.option('-n', '--name', help='name of bucket', required=True)
@@ -93,10 +102,35 @@ def download(bucket_name, source, destination):
         raise("Download failed")
 
 @files.command()
+@click.option('-b', '--bucket-name', help='name of bucket', required=True)
 @click.option('-s', '--source', help='path of local file you want to upload', required=True)
 @click.option('-d', '--destination',  help='destination file path on supabase storage', required=True)
-def move(filename, destination):
-    raise NotImplementedError("todo")
+def move(bucket_name, source, destination):
+    storage = init_supa_storage()
+    try:
+        res = storage.from_(bucket_name).move(source, destination)
+    except Exception as e:
+        raise("move failed")
+
+@files.command()
+@click.option('-b', '--bucket-name', help='name of bucket', required=True)
+@click.option('-s', '--source',  help='source filename', required=True)
+def remove(bucket_name, source):
+    storage = init_supa_storage()
+    try:
+        res = storage.from_(bucket_name).remove(source)
+    except Exception as e:
+        raise("move failed")
+
+@files.command()
+@click.option('-b', '--bucket-name', help='name of bucket', required=True)
+def list(bucket_name):
+    storage = init_supa_storage()
+    try:
+        res = storage.from_(bucket_name).list()
+        print(res)
+    except Exception as e:
+        raise("list files failed failed")
 
 @files.command()
 @click.option('-b', '--bucket-name', help='bucket name', required=True)
